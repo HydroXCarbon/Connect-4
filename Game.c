@@ -4,19 +4,19 @@
 #include <unistd.h>
 #include <stdbool.h>
 
-int player , count_round;
+int player , count_round , user_continue;
 char sym;
 char slot[100][100];
 int i , j , k;
 int height, width , BoxSlot = 7, spaceX  , spaceY;
 int move , x , y , x1 , y1 , y2;
 int checktest;
-bool move_y , gameover , endgame , user_continue , user_input;
+bool move_y , gameover , endgame , user_input;
 
 //setup
 void setup(){
     count_round = 0;
-    user_continue = false;
+    user_continue = 0;
     user_input = false;
     endgame=false;
     gameover = false;
@@ -38,14 +38,6 @@ void check_player(){
     else{
         player = 2; 
         sym = 'x';
-    }
-}
-
-//check game status
-void check_gameover(){
-    if( gameover == true ){
-        gameover=false;
-        endgame=true;
     }
 }
 
@@ -98,21 +90,31 @@ void input(){
         //recieve input and caculate
         switch (getch()) {
         case 'a': case '4':
+            if(!gameover){
             move = 1;
+            }
             break;
         case 's': case '5':
+            if(!gameover){
             move = 2;
+            }
             break;
         case 'd': case '6':
+            if(!gameover){
             move = 3;
+            }
             break;
         case '1':
-            user_continue = true;
+            if(gameover){
+            user_continue = 1;
             user_input = true;
+            }
             break;
         case '2':
-            user_continue = false;
+            if(gameover){
+            user_continue = 2;
             user_input = true;
+            }
             break;
         }
     }
@@ -214,17 +216,23 @@ void reset_game(){
             slot[j][i] = 0;
         }
     } 
+    user_continue == 0;
+    user_input=false;
 }
 
 void check_user_continue(){
-    printf("Continue ?\n");
-    printf("1.Yes    2.No");
-    do{
-        input();
-    }while(!user_input);
-    user_input=false;
-    if(user_continue){
-        reset_game();
+    if(gameover){
+        printf("Continue ?\n");
+        printf("1.Yes    2.No");
+        if(user_input){
+            if( user_continue == 1 ){
+                endgame = true;
+                reset_game();
+            }
+            else if( user_continue == 2 ){
+                endgame = true;
+            }
+        }
     }
 }
 
@@ -236,18 +244,17 @@ int main(){
         //draw();
         //loop game
         while(!endgame){
-            usleep(25000);
+            usleep(28000);
             check_player();
             draw();
             input();
             logic();
-            check_gameover();
             check_Xposition();
             check_Yposition();
             check_result();
+            check_user_continue();
         }
         endgame=false;
-        check_user_continue();
-    }while(user_continue);
+    }while(user_continue !=2);
     return 0;
 }
