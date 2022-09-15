@@ -9,15 +9,16 @@ char sym , player_win;
 char slot[100][100];
 int i , j , k;
 int height, width , BoxSlot = 7, spaceX  , spaceY;
-int move , x , y , x1 , y1 , y2;
+int move , x , y , x1 , y2 , ytemp;
 int player1_score , player2_score;
-bool move_y , gameover , endgame , user_input;
+bool move_y , gameover , endgame , user_input , wait_user;
 
 //setup
 void setup(){
     count_round = 0;
     user_continue = 0;
     player_win = 'n';
+    wait_user = false;
     user_input = false;
     endgame = false;
     gameover = false;
@@ -69,10 +70,10 @@ void draw(){
             }
             else{
                 x1=(3+j)/6;
-                y1=(20-i)/3;
-                if((slot[x1][y1] == 'x' || slot[x1][y1] == 'o') 
+                ytemp=(20-i)/3;
+                if((slot[x1][ytemp] == 'x' || slot[x1][ytemp] == 'o') 
                     && (j+3)%6 == 0 && (i+1)%3 == 0 ){
-                    printf("%c",slot[x1][y1]);
+                    printf("%c",slot[x1][ytemp]);
                 }
                 else
                     printf(" ");
@@ -157,8 +158,8 @@ void check_Yposition(){
         y+=3;
         while( y >= 1 ){
             x1=(3+x)/6;
-            y1=(20-y)/3;
-            y2=y1-1;
+            ytemp=(20-y)/3;
+            y2=ytemp-1;
             if( slot[x1][spaceY] == 'x' || slot[x1][spaceY] == 'o'){
                 y = -2;
                break;
@@ -167,7 +168,7 @@ void check_Yposition(){
                 y+=3;
             }
             else{
-                slot[x1][y1]=sym;
+                slot[x1][ytemp]=sym;
                 count_round+=1;
                 y = -2;
                 break;
@@ -209,8 +210,9 @@ void check_result(){
                 (slot[j][i] != 0)){
                 gameover=true;
             }
-            if(gameover){
+            if( gameover && !wait_user){
                 player_win = slot[j][i];
+                wait_user = true;
                 break;
             }
         }
@@ -239,9 +241,11 @@ void check_user_continue(){
         printf("1.Yes    2.No");
         if(player_win == 'o'){
             player1_score+=1;
+            player_win = 'n';
         }
         else if(player_win == 'x'){
             player2_score+=1;
+            player_win = 'n';
         }
         if(user_input){
             if( user_continue == 1 ){
@@ -262,7 +266,7 @@ int main(){
         setup(); 
         //loop game
         while(!endgame){
-            usleep(28000);
+            usleep(8000 * 2);
             check_player();
             draw();
             input();
