@@ -5,20 +5,21 @@
 #include <stdbool.h>
 
 int player , count_round , user_continue;
-char sym;
+char sym , player_win;
 char slot[100][100];
 int i , j , k;
 int height, width , BoxSlot = 7, spaceX  , spaceY;
 int move , x , y , x1 , y1 , y2;
-int checktest;
+int player1_score , player2_score;
 bool move_y , gameover , endgame , user_input;
 
 //setup
 void setup(){
     count_round = 0;
     user_continue = 0;
+    player_win = 'n';
     user_input = false;
-    endgame=false;
+    endgame = false;
     gameover = false;
     move_y = false;
     spaceX = BoxSlot;
@@ -79,8 +80,9 @@ void draw(){
         }
         printf("\n");
     }
-    printf("%d\n",checktest);
     printf("Round : %d\n", count_round);
+    printf("Score Player 1 : %d\n", player1_score);
+    printf("Score Player 2 : %d\n", player2_score);
 }
 
 //recive realtime input from keyboard 
@@ -150,7 +152,7 @@ void check_Xposition(){
 
 //check and reset y axis
 void check_Yposition(){
-    if( move_y == true ){
+    if( move_y ){
         y = -1;
         y+=3;
         while( y >= 1 ){
@@ -207,10 +209,20 @@ void check_result(){
                 (slot[j][i] != 0)){
                 gameover=true;
             }
+            if(gameover){
+                player_win = slot[j][i];
+                break;
+            }
+        }
+        if(gameover){
+            break;
         }
     }
 }
+
+//initiate reset game
 void reset_game(){
+    //set all array to 0
     for( i = 1 ; i <= spaceY ; i++){
         for( j = 1 ; j <= spaceX ; j++){
             slot[j][i] = 0;
@@ -220,10 +232,17 @@ void reset_game(){
     user_input=false;
 }
 
+//check if user want to continue
 void check_user_continue(){
     if(gameover){
         printf("Continue ?\n");
         printf("1.Yes    2.No");
+        if(player_win == 'o'){
+            player1_score+=1;
+        }
+        else if(player_win == 'x'){
+            player2_score+=1;
+        }
         if(user_input){
             if( user_continue == 1 ){
                 endgame = true;
@@ -241,7 +260,6 @@ int main(){
     do{
         //setup game
         setup(); 
-        //draw();
         //loop game
         while(!endgame){
             usleep(28000);
