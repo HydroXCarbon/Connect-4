@@ -5,7 +5,7 @@
 #include <stdbool.h>
 //test
 
-int player , count_round , user_continue;
+int player , count_round , round_max , user_continue;
 char sym , player_win;
 char slot[100][100];
 int i , j , k;
@@ -58,16 +58,22 @@ void choose_mode(){
         BoxSlot = 5;
         mode = 0;
         c_mode = false;
+        char slot[5][4];
+        round_max = 20;
     }
     else if ( mode == 2){
         BoxSlot = 7;
         mode = 0;
         c_mode = false;
+        char slot[7][6];
+        round_max = 42;
     }
     else if ( mode == 3){
         BoxSlot = 9;
         mode = 0;
         c_mode = false;
+        char slot[9][8];
+        round_max = 72;
     }
 }
 
