@@ -12,7 +12,6 @@ int height, width , BoxSlot = 9, spaceX  , spaceY;
 int move , x , y , x1 , y2 , ytemp;
 int player1_score , player2_score;
 int mode ; 
-int ytest , xtest , ytest1 , xtest1;
 bool move_y , gameover , endgame , user_input , wait_user , c_mode = true;
 
 //setup
@@ -117,8 +116,6 @@ void draw(){
     printf("Round : %d\n", count_round);
     printf("Score Player 1 : %d\n", player1_score);
     printf("Score Player 2 : %d\n", player2_score);
-    printf("%d %d\n",xtest,ytest);
-    printf("%d %d",xtest1,ytest1);
 }
 
 //recive realtime input from keyboard 
