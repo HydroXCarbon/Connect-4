@@ -8,16 +8,20 @@ int player , count_round , user_continue;
 char sym , player_win;
 char slot[100][100];
 int i , j , k;
-int height, width , BoxSlot = 7, spaceX  , spaceY;
+int height, width , BoxSlot = 9, spaceX  , spaceY;
 int move , x , y , x1 , y2 , ytemp;
 int player1_score , player2_score;
-bool move_y , gameover , endgame , user_input , wait_user;
+int mode ; 
+int ytest , xtest , ytest1 , xtest1;
+bool move_y , gameover , endgame , user_input , wait_user , c_mode = true;
 
 //setup
 void setup(){
+    mode = 0;
     count_round = 0;
     user_continue = 0;
     player_win = 'n';
+    c_mode = false;
     wait_user = false;
     user_input = false;
     endgame = false;
@@ -40,6 +44,29 @@ void check_player(){
     else{
         player = 2; 
         sym = 'x';
+    }
+}
+
+//player selece mode
+void choose_mode(){
+    system("cls");
+    printf("Choose mode\n");
+    printf("1. easy (5x4) 2. normal (7x6) 3. Hard (9x8)");
+    //check which mode player choose
+    if( mode == 1 ){
+        BoxSlot = 5;
+        mode = 0;
+        c_mode = false;
+    }
+    else if ( mode == 2){
+        BoxSlot = 7;
+        mode = 0;
+        c_mode = false;
+    }
+    else if ( mode == 3){
+        BoxSlot = 9;
+        mode = 0;
+        c_mode = false;
     }
 }
 
@@ -70,7 +97,7 @@ void draw(){
             }
             else{
                 x1=(3+j)/6;
-                ytemp=(20-i)/3;
+                ytemp=(1+i)/3;
                 if((slot[x1][ytemp] == 'x' || slot[x1][ytemp] == 'o') 
                     && (j+3)%6 == 0 && (i+1)%3 == 0 ){
                     printf("%c",slot[x1][ytemp]);
@@ -84,6 +111,8 @@ void draw(){
     printf("Round : %d\n", count_round);
     printf("Score Player 1 : %d\n", player1_score);
     printf("Score Player 2 : %d\n", player2_score);
+    printf("%d %d\n",xtest,ytest);
+    printf("%d %d",xtest1,ytest1);
 }
 
 //recive realtime input from keyboard 
@@ -94,31 +123,41 @@ void input(){
         switch (getch()) {
         case 'a': case '4':
             if(!gameover){
-            move = 1;
+                move = 1;
             }
             break;
         case 's': case '5':
             if(!gameover){
-            move = 2;
+                move = 2;
             }
             break;
         case 'd': case '6':
             if(!gameover){
-            move = 3;
+                move = 3;
             }
             break;
         case '1':
             if(gameover){
-            user_continue = 1;
-            user_input = true;
+                user_continue = 1;
+                user_input = true;
+            }
+            else if(c_mode){
+                mode = 1;
             }
             break;
         case '2':
             if(gameover){
-            user_continue = 2;
-            user_input = true;
+                user_continue = 2;
+                user_input = true;
+            }
+            else if(c_mode){
+                mode = 2;
             }
             break;
+        case '3':
+            if(c_mode){
+                mode = 3;
+            }
         }
     }
 }
@@ -158,9 +197,9 @@ void check_Yposition(){
         y+=3;
         while( y >= 1 ){
             x1=(3+x)/6;
-            ytemp=(20-y)/3;
-            y2=ytemp-1;
-            if( slot[x1][spaceY] == 'x' || slot[x1][spaceY] == 'o'){
+            ytemp=(1+y)/3;
+            y2=ytemp+1;
+            if( slot[x1][1] == 'x' || slot[x1][1] == 'o'){
                 y = -2;
                break;
             }
@@ -262,8 +301,14 @@ void check_user_continue(){
 //Main function
 int main(){
     do{
+        //select mode
+        while(c_mode){
+            usleep(8000 * 2);
+            choose_mode();
+            input();
+        }
         //setup game
-        setup(); 
+        setup();
         //loop game
         while(!endgame){
             usleep(8000 * 2);
