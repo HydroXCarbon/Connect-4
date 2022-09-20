@@ -3,7 +3,6 @@
 #include <conio.h>
 #include <unistd.h>
 #include <stdbool.h>
-//test
 
 int player , count_round , round_max , user_continue;
 char sym , player_win;
