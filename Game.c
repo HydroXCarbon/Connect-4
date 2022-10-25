@@ -4,15 +4,18 @@
 #include <unistd.h>
 #include <stdbool.h>
 
-int player , count_round , round_max , user_continue;
-char sym , player_win;
+void setup(), check_player(), choose_mode(), draw(), input(), logic(), reset_game(), loop(); 
+void check_Xposition(), check_Yposition(),check_result(), check_user_continue(), check_round(), reset_game();
+void loop(void(*looper)());
+int player, count_round, round_max, user_continue;
+char sym, player_win;
 char slot[100][100];
-int i , j , k;
-int height, width , BoxSlot = 9, spaceX  , spaceY;
-int move , x , y , x1 , y2 , ytemp;
-int player1_score , player2_score;
-int mode ; 
-bool move_y , gameover , endgame , user_input , wait_user , c_mode = true;
+int i, j, k;
+int height, width, BoxSlot = 9, spaceX , spaceY;
+int move, x, y, x1, y2, ytemp;
+int player1_score, player2_score;
+int mode, test; 
+bool move_y, gameover, endgame, user_input, wait_user, loopcheck = true;
 
 //setup
 void setup(){
@@ -20,7 +23,6 @@ void setup(){
     count_round = 0;
     user_continue = 0;
     player_win = 'n';
-    c_mode = false;
     wait_user = false;
     user_input = false;
     endgame = false;
@@ -32,6 +34,15 @@ void setup(){
     height = spaceY*3;
     x = width/2;
     y = -2;
+}
+
+void loop(void(*looper)()){
+    while(loopcheck){
+        usleep(8000 * 2);
+        looper();
+        input();
+    }
+    loopcheck = true;
 }
 
 //check which player round
@@ -55,21 +66,21 @@ void choose_mode(){
     if( mode == 1 ){
         BoxSlot = 5;
         mode = 0;
-        c_mode = false;
+        loopcheck = false;
         char slot[5][4];
         round_max = 20;
     }
     else if ( mode == 2){
         BoxSlot = 7;
         mode = 0;
-        c_mode = false;
+        loopcheck = false;
         char slot[7][6];
         round_max = 42;
     }
     else if ( mode == 3){
         BoxSlot = 9;
         mode = 0;
-        c_mode = false;
+        loopcheck = false;
         char slot[9][8];
         round_max = 72;
     }
@@ -144,7 +155,7 @@ void input(){
                 user_continue = 1;
                 user_input = true;
             }
-            else if(c_mode){
+            else if(loopcheck){
                 mode = 1;
             }
             break;
@@ -153,12 +164,12 @@ void input(){
                 user_continue = 2;
                 user_input = true;
             }
-            else if(c_mode){
+            else if(loopcheck){
                 mode = 2;
             }
             break;
         case '3':
-            if(c_mode){
+            if(loopcheck){
                 mode = 3;
             }
         }
@@ -220,6 +231,21 @@ void check_Yposition(){
     move_y=false;
 }
 
+void  check_round(){
+    if(count_round == round_max){
+        gameover = true;
+        endgame = true;
+    }
+    else if(count_round == round_max){
+        gameover = true;
+        endgame = true;
+    }
+    else if(count_round == round_max){
+        gameover = true;
+        endgame = true;
+    }
+}
+
 //include all axis check
 void check_result(){
     for( i = 1 ; i <= spaceY ; i++){
@@ -274,11 +300,14 @@ void reset_game(){
     } 
     user_continue == 0;
     user_input=false;
+    endgame = false;
+    gameover = false;
 }
 
 //check if user want to continue
 void check_user_continue(){
-    if(gameover){
+    system("cls");
+    if(true){
         printf("Continue ?\n");
         printf("1.Yes    2.No");
         if(player_win == 'o'){
@@ -291,11 +320,11 @@ void check_user_continue(){
         }
         if(user_input){
             if( user_continue == 1 ){
-                endgame = true;
+                loopcheck = false;
                 reset_game();
             }
             else if( user_continue == 2 ){
-                endgame = true;
+                loopcheck = false;
             }
         }
     }
@@ -305,11 +334,7 @@ void check_user_continue(){
 int main(){
     do{
         //select mode
-        while(c_mode){
-            usleep(8000 * 2);
-            choose_mode();
-            input();
-        }
+        loop(choose_mode);
         //setup game
         setup();
         //loop game
@@ -320,11 +345,11 @@ int main(){
             input();
             logic();
             check_Xposition();
-            check_Yposition();
-            check_result();
-            check_user_continue();
+            check_Yposition();  
+            check_round();
         }
-        endgame=false;
+        //check_result();
+        loop(check_user_continue); 
     }while(user_continue !=2);
     return 0;
 }
