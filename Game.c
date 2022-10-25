@@ -14,7 +14,7 @@ int i, j, k;
 int height, width, BoxSlot = 9, spaceX , spaceY;
 int move, x, y, x1, y2, ytemp;
 int player1_score, player2_score;
-int mode, test; 
+int mode; 
 bool move_y, gameover, endgame, user_input, wait_user, loopcheck = true;
 
 //setup
