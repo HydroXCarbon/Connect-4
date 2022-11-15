@@ -1,2 +1,2 @@
-# Connect-4
+# Welcome and have fun
 My First game !!
