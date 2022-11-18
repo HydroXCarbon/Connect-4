@@ -12,7 +12,7 @@ void loop(void(*looper)()), store_data(int, int, int, int, int, int, int, int, i
 int check_around_1(char, int, int, int ,int, int , int, int, int), set_color(int, int, int, int);
 int check_condition(int, int, int, int, int, int, int, int, int, int);
 int player, count_round, round_max, user_continue;
-char sym, player_win, count_route_sub, count_route_main;
+char sym, count_route_sub, count_route_main;
 char slot[10][9], best_posi_x[2], best_posi_o[2];
 int i, j, k;
 int count_checkl, check_count_route_main, check_print;
@@ -558,6 +558,28 @@ void reset_game(){
         best_posi_x[i] = 0;
         best_posi_o[i] = 0;
     }
+    for( int i =0 ; i <= 10; i++ ){
+        for( int j =0 ; j <= 9; i++ ){
+            for( int k =0 ; k <= 2; k++ ){
+                position[i][j][k].x0 = 0;
+                position[i][j][k].y0 = 0;
+                position[i][j][k].conclude = 0;
+                position[i][j][k].best_route = 0;
+                for( int z = 0; z <= 25; z++){
+                    for( int s = 0;s <= 30; s++){
+                    position[i][j][k].route[z].route_x[s] = 0;
+                    position[i][j][k].route[z].route_y[s] = 0;
+                    position[i][j][k].route[z].route_x[s] = 0;
+                    position[i][j][k].route[z].route_y[s] = 0;
+                    }
+                    for( int s = 0;s <= 15; s++){
+                    position[i][j][k].route[z].vector[s] = 0;
+                    position[i][j][k].route[z].priority[s] = 0;
+                    }
+                }
+            }
+        }
+    }
     user_continue == 0;
     user_input = false;
     endgame_1 = false;
@@ -569,13 +591,11 @@ void check_user_continue(){
     if(gameover){
         printf("Continue ?\n");
         printf("1.Yes    2.No");
-        if(player_win == 'o'){
+        if(best_posi_o[0] > best_posi_x[0]){
             player1_score ++;
-            player_win = 'n';
         }
-        else if(player_win == 'x'){
+        else if(best_posi_o[0] < best_posi_x[0]){
             player2_score ++;
-            player_win = 'n';
         }
         if(user_input){
             if( user_continue == 1 ){
@@ -614,14 +634,14 @@ int main(){
             check_result('x');
             check_round();     
         }
-        
-        break;  
-/*        while(!endgame_2){
+       while(!endgame_2){
             usleep(8000 * 2);
+            //clear old messsage
+            system("cls");
             draw();
-            check_user_continue();
             input();
-        }*/
+            check_user_continue();  
+        }
     }while(user_continue !=2);
     return 0;
 }
