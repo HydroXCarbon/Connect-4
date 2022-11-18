@@ -7,41 +7,35 @@
 #include <stdbool.h>
 
 void setup(), check_player(), choose_mode(), draw(), input(), logic(), reset_game(), loop(), random();
-void check_Xposition(), check_Yposition(), check_user_continue(), check_round(), reset_game();
-void loop(void(*looper)()), store_data(int, int, int, int, int, int, int, int, int, int);
-int check_result(char), check_around_1(char, int, int, int ,int, int , int, int, int);
-int check_condition(int, int, int, int, int, int, int, int, int);
+void check_Xposition(), check_Yposition(), check_user_continue(), check_round(), reset_game(), reset_score();
+void loop(void(*looper)()), store_data(int, int, int, int, int, int, int, int, int, int), check_result(char);
+int check_around_1(char, int, int, int ,int, int , int, int, int), set_color(int, int, int, int);
+int check_condition(int, int, int, int, int, int, int, int, int, int);
 int player, count_round, round_max, user_continue;
 char sym, player_win, count_route_sub, count_route_main;
-char slot[9][8];
-int i, j, k, i_temp, j_temp, count_checkl, check_count_route_main;
+char slot[10][9], best_posi_x[2], best_posi_o[2];
+int i, j, k;
+int count_checkl, check_count_route_main, check_print;
 int height, width, BoxSlot = 9, spaceX , spaceY;
 int move, x, y, x1, y2, ytemp;
 int player1_score = 0, player2_score = 0;
 int mode; 
-bool move_y, gameover, endgame_1, endgame_2, user_input, wait_user, loopcheck = true;
+bool move_y, gameover, endgame_1, endgame_2, user_input, wait_user, loopcheck = true, Debug_mode = true;
 struct position_check_1{
-        int x0, y0, conclude;
+        int x0, y0, conclude, best_route;
         struct position_check_2{
-            int route_x[30*2];
-            int route_y[30*2];
-            int vector[30];
-            int priority[30];
+            int route_x[15*2];
+            int route_y[15*2];
+            int vector[15];
+            int priority[15];
             int result, branch;
-        }route[100];
-}position[9][8][2];
+        }route[25];
+}position[10][9][2];
 
-void test(){
-    for( int i = 1 ; i <= spaceY ; i++ ){
-        for( int j = 0 ; j <= spaceX ; j++){
-            printf("|%c| ",slot[j][i]);
-        }
-        printf("\n");
-    }
-}
 //setup
 void setup(){
     mode = 0;
+    check_print = 0;
     count_round = 0;
     count_route_main = 0;
     count_route_sub = 0;
@@ -59,6 +53,8 @@ void setup(){
     height = spaceY*3;
     x = width/2;
     y = -2;
+    best_posi_x[0] = 0;
+    best_posi_o[0] = 0;
 }
 
 void loop(void(*looper)()){
@@ -110,8 +106,6 @@ void choose_mode(){
 
 //create boundary
 void draw(){
-    //clear old messsage
-    system("cls");
     //generate prepare zone
     printf("\n");
     for(int j = 1, i = -2 ; j <= width ; j++ ){
@@ -131,12 +125,17 @@ void draw(){
             else{
                 x1=(3+j)/6;
                 ytemp=(1+i)/3;
-                if((slot[x1][ytemp] == 'x' || slot[x1][ytemp] == 'o') 
-                    && (j+3)%6 == 0 && (i+1)%3 == 0 ){
-                    printf("%c",slot[x1][ytemp]);
+                if((j+3)%6 == 0 && (i+1)%3 == 0){
+                    if(set_color(x1, ytemp, i, j) == 1){
+                    }
+                    else if(slot[x1][ytemp] == 'x' || slot[x1][ytemp] == 'o'){
+                        printf("%c",slot[x1][ytemp]);
+                    }
+                    else
+                        printf(" ");
                 }
                 else
-                   printf(" ");
+                    printf(" ");
             }
         }
         printf("\n");
@@ -144,8 +143,40 @@ void draw(){
     printf("Round : %d\n", count_round);
     printf("Score Player 1 : %d\n", player1_score);
     printf("Score Player 2 : %d\n", player2_score);
+    if(Debug_mode){
+        printf("best posi x : (%d,%d)\n", best_posi_x[1],best_posi_x[2]);
+        printf("best posi o : (%d,%d)\n", best_posi_o[1],best_posi_o[2]);
+    }
 }
 
+int set_color(int x1, int ytemp, int i, int j){
+    int result = 0;
+    for(int z = 0; z < 30 ; z++){
+        if(slot[x1][ytemp]  == 'x' && (j+3)%6 == 0 && (i+1)%3 == 0  &&
+                (x1 == position[best_posi_x[1]][best_posi_x[2]][1].route[(position[best_posi_x[1]][best_posi_x[2]][1].best_route)].route_x[z] &&
+                ytemp == position[best_posi_x[1]][best_posi_x[2]][1].route[(position[best_posi_x[1]][best_posi_x[2]][1].best_route)].route_y[z]) || 
+                (x1 == position[best_posi_x[1]][best_posi_x[2]][1].x0 &&
+                ytemp == position[best_posi_x[1]][best_posi_x[2]][1].y0)){
+            printf("\033[0;31m");
+            printf("x");
+            printf("\033[0m");
+            result = 1;
+            break;
+        }
+        else if(slot[x1][ytemp] == 'o' && (j+3)%6 == 0 && (i+1)%3 == 0  &&
+                (x1 == position[best_posi_o[1]][best_posi_o[2]][0].route[(position[best_posi_o[1]][best_posi_o[2]][0].best_route)].route_x[z] &&
+                ytemp == position[best_posi_o[1]][best_posi_o[2]][0].route[(position[best_posi_o[1]][best_posi_o[2]][0].best_route)].route_y[z]) || 
+                (x1 == position[best_posi_o[1]][best_posi_o[2]][0].x0 &&
+                ytemp == position[best_posi_o[1]][best_posi_o[2]][0].y0)){
+            printf("\033[0;34m");
+            printf("o");
+            printf("\033[0m");
+            result = 1;
+            break;
+        }
+    }
+    return result;
+}
 //random input(testing mode);
 void random(){
     int lower = 4, upper = 6, num;
@@ -277,171 +308,207 @@ void  check_round(){
 }
 
 //check player score
-int check_result(char sym){
-    int result = 0, temp_check = 0, posi;
-    if( round_max != 72 || 1){
-        //loop to check every slot
-        for( i = 1 ; i <= spaceY ; i++ ){  
-            for( j = 1 ; j <= spaceX ; j++ ){
+void check_result(char sym){
+    int temp_check = 0, posi;
+    if(sym == 'o')
+            posi = 0;
+    else if(sym == 'x')   
+            posi = 1;
+    //loop to check every slot
+    for(int i = 1 ; i <= spaceY ; i++ ){  
+        for(int j = 1 ; j <= spaceX ; j++ ){
+            if(Debug_mode){
                 printf("\033[0;31m");
                 printf("|");
                 printf("\033[0m");
                 printf("%c",slot[j][i]);
-                if( slot[j][i] != sym ){
-                    printf("=pass,");
-                   continue;
-                }
-                if(sym == 'o')
-                    posi = 0;
-                else if(sym == 'x')   
-                    posi = 1;
-                count_route_main = 0;
-                position[j][i][posi].x0 = j;
-                position[j][i][posi].y0 = i;
-                for(int z=1; z<=8; z++)
-                    check_around_1(sym, j, i, posi, i, j, 0, z, 100);
-                for(int z=0; z < (sizeof(position[j][i][posi].route) / sizeof(position[j][i][posi].route[0])); z++)
-                    if(position[j][i][posi].route[z].result >= temp_check)
-                        temp_check = position[j][i][posi].route[z].result;
-                printf("=check -> %d ",temp_check); 
-                temp_check = 0;
             }
+            if( slot[j][i] != sym ){
+                if(Debug_mode)
+                    printf("=pass,");
+                continue;
+            }
+            count_route_main = 0;
+            count_route_sub = 0;
+            position[j][i][posi].x0 = j;
+            position[j][i][posi].y0 = i; 
+            for(int z = 0 ; z <= 25 ; z++)
+                position[j][i][posi].route[z].result = 0;
+            for(int z=1; z<=8; z++)
+                check_around_1(sym, j, i, posi, i, j, 0, z, 100);
+            for(int z=0; z < (sizeof(position[j][i][posi].route) / sizeof(position[j][i][posi].route[0])); z++)
+                if(position[j][i][posi].route[z].result > position[j][i][posi].conclude){
+                    position[j][i][posi].best_route = z;
+                    position[j][i][posi].conclude = position[j][i][posi].route[z].result;
+                }
+            if(Debug_mode)
+                printf("conclude -> %d best route = %d",position[j][i][posi].conclude,position[j][i][posi].best_route); 
+            temp_check = 0;
+            if(position[j][i][1].conclude > best_posi_x[0]){
+                best_posi_x[0] = position[j][i][1].conclude;
+                best_posi_x[1] = j;
+                best_posi_x[2] = i;
+            }
+            else if(position[j][i][0].conclude > best_posi_o[0]){
+                best_posi_o[0] = position[j][i][0].conclude;
+                best_posi_o[1] = j;
+                best_posi_o[2] = i;
+            }
+        }
+        if(Debug_mode){
             printf("\033[0;31m");
             printf("|");
             printf("\033[0m");
             printf("\n");
         }
     }
-    return result;
+    printf("\n"); 
+    //find best route
 }
 
 //check around target slot
 int check_around_1(char player_sym, int x0, int y0, int posi, int i, int j, int check_loop1, int check_loop2, int priority){
-    int result = 0;
-    if((j <= spaceX &&  j > 0 ) && (i <= spaceY && i > 0) && slot[j][i] == player_sym){
+    if((j <= spaceX &&  j > 0) && (i <= spaceY && i > 0) && slot[j][i] == player_sym){
         //1. check left 
         if(slot[j][i] == slot[j-1][i] && slot[j][i] == slot[j-2][i] && check_loop1 != 5 && check_loop2 == 1){
-            if( check_condition(x0, y0, posi, j-1, i, j-2, i, count_route_main, count_route_sub) == 1)
+            if( check_condition(x0, y0, posi, j-1, i, j-2, i, count_route_main, count_route_sub, priority) == 1 && check_loop1 != 0)
                 goto end;
-            check_count_route_main = 1;
-            printf("(%d,%d)(%d,%d)(%d,%d)checking left ",j,i,count_route_main,count_route_sub/2,check_loop1,check_loop2);
+            if(Debug_mode)
+                printf("(%d,%d)(%d,%d)(%d,%d)checking left ",x0,y0,j,i,count_route_main,count_route_sub/2);
             store_data(x0, y0, posi, count_route_main, count_route_sub, j-1, i, j-2, i, priority);
             position[x0][y0][posi].route[count_route_main].vector[count_route_sub/2] = 4;
+            position[x0][y0][posi].route[count_route_main].result ++;
             count_route_sub +=2;
+            check_count_route_main = 1;
             for(int z=1; z<=8; z++){
                 if(z != 5)
-                    position[x0][y0][posi].route[count_route_main].result += 1 + check_around_1( player_sym, x0, y0, posi, i, j-2, 1, z, priority-1);
+                    check_around_1( player_sym, x0, y0, posi, i, j-2, 1, z, priority-1);
             }
         } 
         //2. check top-left 
         else if(slot[j][i] == slot[j-1][i-1] && slot[j][i] == slot[j-2][i-2] && check_loop1 != 6  && check_loop2 == 2){
-            if( check_condition(x0, y0, posi, j-1, i-1, j-2, i-2, count_route_main, count_route_sub) == 1)
+            if( check_condition(x0, y0, posi, j-1, i-1, j-2, i-2, count_route_main, count_route_sub, priority) == 1 && check_loop1 != 0)
                 goto end;
-            check_count_route_main = 1;
-            printf("(%d,%d)(%d,%d)(%d,%d)checking top-left ",j,i,count_route_main,count_route_sub/2,check_loop1,check_loop2);
+            if(Debug_mode)
+                printf("(%d,%d)(%d,%d)(%d,%d)checking top-left ",x0,y0,j,i,count_route_main,count_route_sub/2);
             store_data(x0, y0, posi, count_route_main, count_route_sub, j-1, i-1, j-2, i-2, priority);
             position[x0][y0][posi].route[count_route_main].vector[count_route_sub/2] = 7;
+            position[x0][y0][posi].route[count_route_main].result ++;
             count_route_sub +=2;
+            check_count_route_main = 1;
             for(int z=1; z<=8; z++){
                 if(z != 6)
-                    position[x0][y0][posi].route[count_route_main].result += 1 + check_around_1( player_sym, x0, y0, posi, i-2, j-2, 2, z, priority-1);
+                    check_around_1( player_sym, x0, y0, posi, i-2, j-2, 2, z, priority-1);
             }
         }
         //3. check top 
         else if(slot[j][i] == slot[j][i-1] && slot[j][i] == slot[j][i-2] && check_loop1 != 7 && check_loop2 == 3){
-            if( check_condition(x0, y0, posi, j, i-1, j, i-2, count_route_main, count_route_sub) == 1)
+            if( check_condition(x0, y0, posi, j, i-1, j, i-2, count_route_main, count_route_sub, priority) == 1 && check_loop1 != 0)
                 goto end;
-            check_count_route_main = 1;
-            printf("(%d,%d)(%d,%d)(%d,%d)checking top ",j,i,count_route_main,count_route_sub/2,check_loop1,check_loop2);
+            if(Debug_mode)
+                printf("(%d,%d)(%d,%d)(%d,%d)checking top ",x0,y0,j,i,count_route_main,count_route_sub/2);
             store_data(x0, y0, posi, count_route_main, count_route_sub, j, i-1, j, i-2, priority);
             position[x0][y0][posi].route[count_route_main].vector[count_route_sub/2] = 8;
+            position[x0][y0][posi].route[count_route_main].result ++;
             count_route_sub +=2;
+            check_count_route_main = 1;
             for(int z=1; z<=8; z++){
                 if(z != 7)
-                    position[x0][y0][posi].route[count_route_main].result += 1 + check_around_1( player_sym, x0, y0, posi, i-2, j, 3, z, priority-1);
+                    check_around_1( player_sym, x0, y0, posi, i-2, j, 3, z, priority-1);
             }
         }
         //4. check top-right
         else if(slot[j][i] == slot[j+1][i-1] && slot[j][i] == slot[j+2][i-2] && check_loop1 != 8 && check_loop2 == 4){
-            if( check_condition(x0, y0, posi, j+1, i-1, j+2, i-2, count_route_main, count_route_sub) == 1)
+            if( check_condition(x0, y0, posi, j+1, i-1, j+2, i-2, count_route_main, count_route_sub, priority) == 1 && check_loop1 != 0)
                 goto end;
-            check_count_route_main = 1;
-            printf("(%d,%d)(%d,%d)(%d,%d)checking top-right ",j,i,count_route_main,count_route_sub/2,check_loop1,check_loop2);
+            if(Debug_mode)
+                printf("(%d,%d)(%d,%d)(%d,%d)checking top-right ",x0,y0,j,i,count_route_main,count_route_sub/2);
             store_data(x0, y0, posi, count_route_main, count_route_sub, j+1, i-1, j+2, i-2, priority);
             position[x0][y0][posi].route[count_route_main].vector[count_route_sub/2] = 9;
+            position[x0][y0][posi].route[count_route_main].result ++;
             count_route_sub +=2;
+            check_count_route_main = 1;
             for(int z=1; z<=8; z++){
                 if(z != 8)
-                    position[x0][y0][posi].route[count_route_main].result += 1 + check_around_1( player_sym, x0, y0, posi, i-2, j+2, 4, z, priority-1);
+                    check_around_1( player_sym, x0, y0, posi, i-2, j+2, 4, z, priority-1);
             }
         }
         //5. check right 
         else if(slot[j][i] == slot[j+1][i] && slot[j][i] == slot[j+2][i] && check_loop1 != 1 && check_loop2 == 5){
-            if( check_condition(x0, y0, posi, j+1, i, j+2, i, count_route_main, count_route_sub) == 1)
-                goto end;
-            check_count_route_main = 1;
-            printf("(%d,%d)(%d,%d)(%d,%d)checking right ",j,i,count_route_main,count_route_sub/2,check_loop1,check_loop2);
+            if( check_condition(x0, y0, posi, j+1, i, j+2, i, count_route_main, count_route_sub, priority) == 1 && check_loop1 != 0)
+                goto end;  
+            if(Debug_mode)
+                printf("(%d,%d)(%d,%d)(%d,%d)checking right ",x0,y0,j,i,count_route_main,count_route_sub/2);
             store_data(x0, y0, posi, count_route_main, count_route_sub, j+1, i, j+2, i, priority);
             position[x0][y0][posi].route[count_route_main].vector[count_route_sub/2] = 6;
+            position[x0][y0][posi].route[count_route_main].result ++;
             count_route_sub +=2;
+            check_count_route_main = 1;
             for(int z=1; z<=8; z++){
                 if(z != 1)
-                    position[x0][y0][posi].route[count_route_main].result += 1 + check_around_1( player_sym, x0, y0, posi, i, j+2, 5, z, priority-1);
+                    check_around_1( player_sym, x0, y0, posi, i, j+2, 5, z, priority-1);
             }
         }
         //6. check bottom-right
         else if(slot[j][i] == slot[j+1][i+1] && slot[j][i] == slot[j+2][i+2] && check_loop1 != 2 && check_loop2 == 6){
-            if( check_condition(x0, y0, posi, j+1, i+1, j+2, i+2, count_route_main, count_route_sub) == 1)
+            if( check_condition(x0, y0, posi, j+1, i+1, j+2, i+2, count_route_main, count_route_sub, priority) == 1 && check_loop1 != 0)
                 goto end;
-            check_count_route_main = 1;
-            printf("(%d,%d)(%d,%d)(%d,%d)checking bottom-right ",j,i,count_route_main,count_route_sub/2,check_loop1,check_loop2);
+            if(Debug_mode)
+                printf("(%d,%d)(%d,%d)(%d,%d)checking bottom-right ",x0,y0,j,i,count_route_main,count_route_sub/2);
             store_data(x0, y0, posi, count_route_main, count_route_sub, j+1, i+1, j+2, i+2, priority);
             position[x0][y0][posi].route[count_route_main].vector[count_route_sub/2] = 3;
+            position[x0][y0][posi].route[count_route_main].result ++;
             count_route_sub +=2;
+            check_count_route_main = 1;
             for(int z=1; z<=8; z++){
                 if(z != 2)
-                    position[x0][y0][posi].route[count_route_main].result += 1 + check_around_1( player_sym, x0, y0, posi, i+2, j+2, 6, z, priority-1);
+                    check_around_1( player_sym, x0, y0, posi, i+2, j+2, 6, z, priority-1);
             }
         }
         //7. check bottom 
         else if(slot[j][i] == slot[j][i+1] && slot[j][i] == slot[j][i+2] && check_loop1 != 3 && check_loop2 == 7){
-            if( check_condition(x0, y0, posi, j, i+1, j, i+2, count_route_main, count_route_sub) == 1)
+            if( check_condition(x0, y0, posi, j, i+1, j, i+2, count_route_main, count_route_sub, priority) == 1 && check_loop1 != 0)
                 goto end;
-            check_count_route_main = 1;
-            printf("(%d,%d)(%d,%d)(%d,%d)checking bottom ",j,i,count_route_main,count_route_sub/2,check_loop1,check_loop2);
+            if(Debug_mode)
+                printf("(%d,%d)(%d,%d)(%d,%d)checking bottom ",x0,y0,j,i,count_route_main,count_route_sub/2);
             store_data(x0, y0, posi, count_route_main, count_route_sub, j, i+1, j, i+2, priority);
             position[x0][y0][posi].route[count_route_main].vector[count_route_sub/2] = 2;
+            position[x0][y0][posi].route[count_route_main].result ++;
             count_route_sub +=2;
+            check_count_route_main = 1;
             for(int z=1; z<=8; z++){
                 if(z != 3)
-                    position[x0][y0][posi].route[count_route_main].result += 1 + check_around_1( player_sym, x0, y0, posi, i+2, j, 7, z, priority-1);
+                    check_around_1( player_sym, x0, y0, posi, i+2, j, 7, z, priority-1);
             }
         }
         //8. check bottom-left
         else if(slot[j][i] == slot[j-1][i+1] && slot[j][i] == slot[j-2][i+2] && check_loop1 != 4 && check_loop2 == 8){
-            if( check_condition(x0, y0, posi, j-1, i+1, j-2, i+2, count_route_main, count_route_sub) == 1)
+            if( check_condition(x0, y0, posi, j-1, i+1, j-2, i+2, count_route_main, count_route_sub, priority) == 1 && check_loop1 != 0)
                 goto end;
-            check_count_route_main = 1;
-            printf("(%d,%d)(%d,%d)(%d,%d)checking bottom-left ",j,i,count_route_main,count_route_sub/2,check_loop1,check_loop2);
+            if(Debug_mode)
+                printf("(%d,%d)(%d,%d)(%d,%d)checking bottom-left ",x0,y0,j,i,count_route_main,count_route_sub/2);
             store_data(x0, y0, posi, count_route_main, count_route_sub, j-1, i+1, j-2, i+2, priority);
             position[x0][y0][posi].route[count_route_main].vector[count_route_sub/2] = 1;
+            position[x0][y0][posi].route[count_route_main].result ++;
             count_route_sub +=2;
+            check_count_route_main = 1;
             for(int z=1; z<=8; z++){
                 if(z != 4)
-                    position[x0][y0][posi].route[count_route_main].result += 1 + check_around_1( player_sym, x0, y0, posi, i+2, j-2, 8, z, priority-1);
+                    check_around_1( player_sym, x0, y0, posi, i+2, j-2, 8, z, priority-1);
             }
         }
-        else{
+        else if (check_loop2 == 8 || (check_loop1 == 4 && check_loop2 == 7)){
             end:
-            if(check_count_route_main == 1)
+            if(check_count_route_main == 1){
+                if(Debug_mode)
+                    printf("=check(%d,%d,%d) -> %d ",count_route_main,check_loop1,check_loop2,position[x0][y0][posi].route[count_route_main].result);
+                position[x0][y0][posi].route[count_route_main].branch = count_route_sub/2;
                 count_route_main++;  
-            check_count_route_main = 0;
-            position[x0][y0][posi].route[count_route_main].branch = count_route_sub/2;
-            result = 0;
+                check_count_route_main = 0;
+            }   
             count_route_sub = 0;
         }
     }
-    return result;
 }
 
 //store data from check_around_1
@@ -454,34 +521,43 @@ void store_data(int x0, int y0, int posi, int count_route_main, int count_route_
 }
 
 //check if vector collaps(bigger vector only)
-int check_condition(int x0, int y0, int posi, int j1, int i1, int j2, int i2, int route_main, int route_sub){
+int check_condition(int x0, int y0, int posi, int j1, int i1, int j2, int i2, int route_main, int route_sub, int priority){
     int result = 0;
     for(int z=route_sub-1; z >= 0; z--){
-        if (position[x0][y0][posi].route[route_main].route_x[route_sub] == position[x0][y0][posi].route[route_main].route_x[z] &&
-            position[x0][y0][posi].route[route_main].route_y[route_sub] == position[x0][y0][posi].route[route_main].route_y[z] &&
-            position[x0][y0][posi].route[route_main].priority[z] >  position[x0][y0][posi].route[route_main].priority[route_sub]){
+        if((j1 == position[x0][y0][posi].route[route_main].route_x[z] && i1 == position[x0][y0][posi].route[route_main].route_y[z] &&
+            priority < position[x0][y0][posi].route[route_main].priority[z]) ||
+           (j2 == position[x0][y0][posi].route[route_main].route_x[z] && i2 == position[x0][y0][posi].route[route_main].route_y[z] &&
+            priority < position[x0][y0][posi].route[route_main].priority[z]) ||
+           (j1 == position[x0][y0][posi].x0 && i1 == position[x0][y0][posi].y0 || j2 == position[x0][y0][posi].x0 && i2 == position[x0][y0][posi].y0)){
                 result = 1;
-                break;
-        }
-        else if(position[x0][y0][posi].route[route_main].route_x[route_sub+1] == position[x0][y0][posi].route[route_main].route_x[z] &&
-                position[x0][y0][posi].route[route_main].route_y[route_sub+1] == position[x0][y0][posi].route[route_main].route_y[z] &&
-                position[x0][y0][posi].route[route_main].priority[z] > position[x0][y0][posi].route[route_main].priority[route_sub]){
-                result = 1;
+                if(Debug_mode){
+                    printf("\033[0;33m");
+                    printf("deflect");
+                    printf("\033[0m");  
+                }
                 break;
         }
     }
     return result;
 }
 
+//reset score counter
+void reset_score(){
+}
+
 //initiate reset sequence game
 void reset_game(){
     //set all array to 0
     endgame_1 = true;
-    for( i = 1 ; i <= spaceY ; i++){
+    for( int i = 1 ; i <= spaceY ; i++){
         for( j = 1 ; j <= spaceX ; j++){
             slot[j][i] = 0;
         }
     } 
+    for( int i =0 ; i <= 2; i++ ){
+        best_posi_x[i] = 0;
+        best_posi_o[i] = 0;
+    }
     user_continue == 0;
     user_input = false;
     endgame_1 = false;
@@ -518,26 +594,29 @@ void check_user_continue(){
 //Main function
 int main(){
      do{
-        //select mode
+         //select mode
         loop(choose_mode);
         //setup game
         setup();
         //loop game
         while(!endgame_1){
             usleep(8000 * 2);
+            //clear old messsage
+            system("cls");
             check_player();
             draw();
             input();
-            random();
+            //random();
             logic();
             check_Xposition();
             check_Yposition();  
-            check_round();       
+            check_result('o');
+            check_result('x');
+            check_round();     
         }
-        check_result('x');
-        user_continue = 2;
-/*         //check_result('x');
-        while(!endgame_2){
+        
+        break;  
+/*        while(!endgame_2){
             usleep(8000 * 2);
             draw();
             check_user_continue();
