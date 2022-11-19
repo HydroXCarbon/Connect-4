@@ -6,21 +6,25 @@
 #include <unistd.h>
 #include <stdbool.h>
 
-void setup(), check_player(), choose_mode(), draw(), input(), logic(), reset_game(), loop(), random();
-void check_Xposition(), check_Yposition(), check_user_continue(), check_round(), reset_game(), reset_score();
+void setup(), check_player(), choose_mode(), draw(), input(), logic(), loop(), random();
+void check_Xposition(), check_Yposition(), check_user_continue(), check_round(), reset_game(), update_score();
 void loop(void(*looper)()), store_data(int, int, int, int, int, int, int, int, int, int), check_result(char);
 int check_around_1(char, int, int, int ,int, int , int, int, int), set_color(int, int, int, int);
 int check_condition(int, int, int, int, int, int, int, int, int, int);
 int player, count_round, round_max, user_continue;
 char sym, count_route_sub, count_route_main;
-char slot[10][9], best_posi_x[2], best_posi_o[2];
+char slot[10][9], best_posi_x[3], best_posi_o[3];
 int i, j, k;
 int count_checkl, check_count_route_main, check_print;
 int height, width, BoxSlot = 9, spaceX , spaceY;
 int move, x, y, x1, y2, ytemp;
 int player1_score = 0, player2_score = 0;
 int mode; 
-bool move_y, gameover, endgame_1, endgame_2, user_input, wait_user, loopcheck = true, Debug_mode = true;
+bool move_y, gameover, endgame_1, endgame_2, user_input, wait_user, loopcheck = true ;
+// dev mode !!
+bool Debug_mode = true, auto_random = true, auto_run = true;
+int auto_choose_mode = 2;
+// dev mode !!
 struct position_check_1{
         int x0, y0, conclude, best_route;
         struct position_check_2{
@@ -84,19 +88,19 @@ void choose_mode(){
     printf("Choose mode\n");
     printf("1. easy (5x4) 2. normal (7x6) 3. Hard (9x8)");
     //check which mode player choose
-    if( mode == 1 ){
+    if( mode == 1 || auto_choose_mode == 1){
         BoxSlot = 5;
         mode = 0;
         loopcheck = false;
         round_max = 20;
     }
-    else if ( mode == 2){
+    else if ( mode == 2 || auto_choose_mode == 2){
         BoxSlot = 7;
         mode = 0;
         loopcheck = false;
         round_max = 42;
     }
-    else if ( mode == 3){
+    else if ( mode == 3 || auto_choose_mode == 3){
         BoxSlot = 9;
         mode = 0;
         loopcheck = false;
@@ -146,6 +150,7 @@ void draw(){
     if(Debug_mode){
         printf("best posi x : (%d,%d)\n", best_posi_x[1],best_posi_x[2]);
         printf("best posi o : (%d,%d)\n", best_posi_o[1],best_posi_o[2]);
+        printf("Prep stats x : %d\n", x);
     }
 }
 
@@ -195,6 +200,7 @@ void random(){
             if(!gameover){
                 move = 3;
             }
+            break;
     }
 }
 
@@ -335,8 +341,8 @@ void check_result(char sym){
             for(int z = 0 ; z <= 25 ; z++)
                 position[j][i][posi].route[z].result = 0;
             for(int z=1; z<=8; z++)
-                check_around_1(sym, j, i, posi, i, j, 0, z, 100);
-            for(int z=0; z < (sizeof(position[j][i][posi].route) / sizeof(position[j][i][posi].route[0])); z++)
+                check_around_1(sym, j, i, posi, i, j, 0, z, 100); 
+            for(int z=0; z < 25; z++)
                 if(position[j][i][posi].route[z].result > position[j][i][posi].conclude){
                     position[j][i][posi].best_route = z;
                     position[j][i][posi].conclude = position[j][i][posi].route[z].result;
@@ -353,7 +359,7 @@ void check_result(char sym){
                 best_posi_o[0] = position[j][i][0].conclude;
                 best_posi_o[1] = j;
                 best_posi_o[2] = i;
-            }
+            } 
         }
         if(Debug_mode){
             printf("\033[0;31m");
@@ -372,7 +378,7 @@ int check_around_1(char player_sym, int x0, int y0, int posi, int i, int j, int 
         //1. check left 
         if(slot[j][i] == slot[j-1][i] && slot[j][i] == slot[j-2][i] && check_loop1 != 5 && check_loop2 == 1){
             if( check_condition(x0, y0, posi, j-1, i, j-2, i, count_route_main, count_route_sub, priority) == 1 && check_loop1 != 0)
-                goto end;
+               goto end;
             if(Debug_mode)
                 printf("(%d,%d)(%d,%d)(%d,%d)checking left ",x0,y0,j,i,count_route_main,count_route_sub/2);
             store_data(x0, y0, posi, count_route_main, count_route_sub, j-1, i, j-2, i, priority);
@@ -542,7 +548,11 @@ int check_condition(int x0, int y0, int posi, int j1, int i1, int j2, int i2, in
 }
 
 //reset score counter
-void reset_score(){
+void update_score(){
+    if(best_posi_o[0] > best_posi_x[0])
+        player1_score ++;
+    else if(best_posi_o[0] < best_posi_x[0])
+        player2_score ++;
 }
 
 //initiate reset sequence game
@@ -558,9 +568,10 @@ void reset_game(){
         best_posi_x[i] = 0;
         best_posi_o[i] = 0;
     }
-    for( int i =0 ; i <= 10; i++ ){
-        for( int j =0 ; j <= 9; i++ ){
-            for( int k =0 ; k <= 2; k++ ){
+    printf("testset1");
+    for( int k =0 ; k <= 1; k++ ){
+        for( int i = 1; i <= 9; i++ ){
+            for( int j = 1; j <= 8; j++ ){
                 position[i][j][k].x0 = 0;
                 position[i][j][k].y0 = 0;
                 position[i][j][k].conclude = 0;
@@ -579,7 +590,9 @@ void reset_game(){
                 }
             }
         }
+        printf("testset3");
     }
+    printf("testset4");
     user_continue == 0;
     user_input = false;
     endgame_1 = false;
@@ -591,20 +604,12 @@ void check_user_continue(){
     if(gameover){
         printf("Continue ?\n");
         printf("1.Yes    2.No");
-        if(best_posi_o[0] > best_posi_x[0]){
-            player1_score ++;
-        }
-        else if(best_posi_o[0] < best_posi_x[0]){
-            player2_score ++;
-        }
-        if(user_input){
-            if( user_continue == 1 ){
-                loopcheck = false;
+        if(user_input || auto_run){
+            if( user_continue == 1 || auto_run){
                 endgame_2 = true;
                 reset_game();
             }
             else if( user_continue == 2 ){
-                loopcheck = false;
                 endgame_2 = true;
             }
         }
@@ -613,7 +618,8 @@ void check_user_continue(){
 
 //Main function
 int main(){
-     do{
+    srand(time(NULL));
+    do{
          //select mode
         loop(choose_mode);
         //setup game
@@ -625,8 +631,10 @@ int main(){
             system("cls");
             check_player();
             draw();
-            input();
-            //random();
+            if(auto_random)
+                random();
+            else
+                input();
             logic();
             check_Xposition();
             check_Yposition();  
@@ -634,7 +642,8 @@ int main(){
             check_result('x');
             check_round();     
         }
-       while(!endgame_2){
+        update_score();
+        while(!endgame_2){
             usleep(8000 * 2);
             //clear old messsage
             system("cls");
