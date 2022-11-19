@@ -22,8 +22,8 @@ int player1_score = 0, player2_score = 0;
 int mode; 
 bool move_y, gameover, endgame_1, endgame_2, user_input, wait_user, loopcheck = true ;
 // dev mode !!
-bool Debug_mode = true, auto_random = false, auto_run = true;
-int auto_choose_mode = 1;
+bool Debug_mode = true, auto_random = true, auto_run = true;
+int auto_choose_mode = 2;
 // dev mode !!
 struct position_check_1{
         int x0, y0, conclude, best_route;
@@ -59,16 +59,6 @@ void setup(){
     y = -2;
     best_posi_x[0] = 0;
     best_posi_o[0] = 0;
-    slot[1][1] = 'o';
-    slot[3][1] = 'o';
-    slot[5][1] = 'o';
-    slot[2][2] = 'o';
-    slot[4][2] = 'o';
-    slot[1][3] = 'o';
-    slot[2][3] = 'o';
-    slot[3][3] = 'o';
-    slot[5][3] = 'o';
-    slot[3][4] = 'o';
 }
 
 void loop(void(*looper)()){
@@ -359,7 +349,6 @@ void check_result(char sym){
                 }
             if(Debug_mode)
                 printf("conclude -> %d best route = %d",position[j][i][posi].conclude,position[j][i][posi].best_route); 
-            } 
         }
         if(Debug_mode){
             printf("\033[0;31m");
@@ -367,6 +356,7 @@ void check_result(char sym){
             printf("\033[0m");
             printf("\n");
         }
+    }
     printf("\n"); 
     //find best route (priority top slot)
     for(int i = spaceY ; i >= 1 ; i-- ){  
@@ -516,17 +506,19 @@ int check_around_1(char player_sym, int x0, int y0, int posi, int i, int j, int 
                     check_around_1( player_sym, x0, y0, posi, i+2, j-2, 8, z, priority-1);
             }
         }
-        else if (check_loop2 == 8 || (check_loop1 == 4 && check_loop2 == 7)){
-            end:
-            if(check_count_route_main == 1){
-                if(Debug_mode)
-                    printf("=check(%d,%d,%d) -> %d ",count_route_main,check_loop1,check_loop2,position[x0][y0][posi].route[count_route_main].result);
-                position[x0][y0][posi].route[count_route_main].branch = count_route_sub/2;
-                count_route_main++;
-                check_count_main = 1;
-                check_count_route_main = 0;
-            }   
-            count_route_sub = 0;
+        else if (check_loop2 == 8 || (check_loop1 == 4 && check_loop2 == 7)){  
+            end: 
+            if(check_loop2 == 8 || (check_loop1 == 4 && check_loop2 == 7)){
+                if(check_count_route_main == 1){
+                    if(Debug_mode)
+                        printf("=check(%d,%d,%d) -> %d ",count_route_main,check_loop1,check_loop2,position[x0][y0][posi].route[count_route_main].result);
+                    position[x0][y0][posi].route[count_route_main].branch = count_route_sub/2;
+                    count_route_main++;
+                    check_count_main = 1;
+                    check_count_route_main = 0;
+                }   
+                count_route_sub = 0;
+            }
         }
     }
 }
@@ -679,12 +671,7 @@ int main(){
             check_result('o');
             check_result('x');
             check_round(); 
-            break;
         }
-        system("cls");
-        draw();
-        check_result('o');
-        break;
         update_score();
         while(!endgame_2){
             usleep(8000 * 2);
