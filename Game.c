@@ -15,15 +15,15 @@ int player, count_round, round_max, user_continue;
 char sym, count_route_sub, count_route_main;
 char slot[10][9], best_posi_x[3], best_posi_o[3];
 int i, j, k;
-int count_checkl, check_count_route_main, check_print, check_count_main;
+int count_checkl, check_count_route_main, check_print, check_count_main, count_game = 0;
 int height, width, BoxSlot = 9, spaceX , spaceY;
 int move, x, y, x1, y2, ytemp;
 int player1_score = 0, player2_score = 0;
 int mode; 
 bool move_y, gameover, endgame_1, endgame_2, user_input, wait_user, loopcheck = true ;
 // dev mode !!
-bool Debug_mode = false, auto_random = true, auto_run = true;
-int auto_choose_mode = 3;
+bool Debug_mode = false, auto_random = false, auto_run = false;
+int auto_choose_mode = 0;
 // dev mode !!
 struct position_check_1{
         int x0, y0, conclude, best_route;
@@ -72,13 +72,24 @@ void loop(void(*looper)()){
 
 //check which player round
 void check_player(){
-    if(count_round%2 == 0){
-        player = 1;
-        sym = 'o';
-    } 
+    if(count_game%2 == 1)
+        if(count_round%2 == 0){
+            player = 1;
+            sym = 'o';
+        } 
+        else{
+            player = 2; 
+            sym = 'x';
+    }
     else{
-        player = 2; 
-        sym = 'x';
+        if(count_round%2 == 1){
+            player = 1;
+            sym = 'o';
+        } 
+        else{
+            player = 2; 
+            sym = 'x';
+        }
     }
 }
 
@@ -691,6 +702,7 @@ int main(){
             input();
             check_user_continue();  
         }
+        count_game++;
     }while(user_continue !=2);
     return 0;
 }
