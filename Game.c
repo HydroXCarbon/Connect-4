@@ -22,8 +22,8 @@ int player1_score = 0, player2_score = 0;
 int mode; 
 bool move_y, gameover, endgame_1, endgame_2, user_input, wait_user, loopcheck = true ;
 // dev mode !!
-bool Debug_mode = true, auto_random = true, auto_run = true;
-int auto_choose_mode = 2;
+bool Debug_mode = false, auto_random = false, auto_run = false;
+int auto_choose_mode = 0;
 // dev mode !!
 struct position_check_1{
         int x0, y0, conclude, best_route;
@@ -526,12 +526,13 @@ void store_previous(int x0, int y0, int posi, int priority){
     // store previously branch
     if(check_count_main == 1 && count_route_main != 0){
         check_count_main = 0;
-        for(int x = 100; x > priority; x-- ){
+        for(int x = 100, z = 0; x > priority; x--, z++ ){
             position[x0][y0][posi].route[count_route_main].route_x[count_route_sub] = position[x0][y0][posi].route[count_route_main-1].route_x[count_route_sub];
             position[x0][y0][posi].route[count_route_main].route_y[count_route_sub] = position[x0][y0][posi].route[count_route_main-1].route_y[count_route_sub];
             position[x0][y0][posi].route[count_route_main].route_x[count_route_sub+1] = position[x0][y0][posi].route[count_route_main-1].route_x[count_route_sub+1];
             position[x0][y0][posi].route[count_route_main].route_y[count_route_sub+1] = position[x0][y0][posi].route[count_route_main-1].route_y[count_route_sub+1];
             position[x0][y0][posi].route[count_route_main].result ++;
+            position[x0][y0][posi].route[count_route_main].priority[z] = x;
             count_route_sub += 2;
         }
     }
@@ -539,7 +540,6 @@ void store_previous(int x0, int y0, int posi, int priority){
 
 //store data from check_around_1
 void store_data(int x0, int y0, int posi, int count_route_main, int count_route_sub, int j1, int i1, int j2, int i2, int priority){
-    printf("prio = %d",priority);
     position[x0][y0][posi].route[count_route_main].route_x[count_route_sub] = j1;
     position[x0][y0][posi].route[count_route_main].route_y[count_route_sub] = i1;
     position[x0][y0][posi].route[count_route_main].route_x[count_route_sub+1] = j2;
@@ -549,27 +549,25 @@ void store_data(int x0, int y0, int posi, int count_route_main, int count_route_
 
 //check if vector collaps( bigger vector only)
 int check_condition(int x0, int y0, int posi, int j1, int i1, int j2, int i2, int route_main, int route_sub, int priority){
-    int result = 0;
+    int result = 0;  
     for(int z=route_sub-1; z >= 0; z--){
         if((j1 == position[x0][y0][posi].route[route_main].route_x[z] && i1 == position[x0][y0][posi].route[route_main].route_y[z] &&
-            priority < position[x0][y0][posi].route[route_main].priority[z]) || (j1 == position[x0][y0][posi].x0 && i1 == position[x0][y0][posi].y0)){
+            priority < position[x0][y0][posi].route[route_main].priority[z/2]) || (j1 == position[x0][y0][posi].x0 && i1 == position[x0][y0][posi].y0)){
                 result = 1;
                 if(Debug_mode){
                     printf("\033[0;33m");
-                    printf("deflect");
+                    printf("deflect->(%d,%d)",j1,i1);
                     printf("\033[0m");  
-                    printf("(%d,%d)",j1,i1);
                 }
                 break;
         }
         else if((j2 == position[x0][y0][posi].route[route_main].route_x[z] && i2 == position[x0][y0][posi].route[route_main].route_y[z] &&
-            priority < position[x0][y0][posi].route[route_main].priority[z]) || (j2 == position[x0][y0][posi].x0 && i2 == position[x0][y0][posi].y0)){
+            priority < position[x0][y0][posi].route[route_main].priority[z/2]) || (j2 == position[x0][y0][posi].x0 && i2 == position[x0][y0][posi].y0)){
                 result = 1;
                 if(Debug_mode){
                     printf("\033[0;33m");
-                    printf("deflect");
+                    printf("deflect->(%d,%d)",j2,i2);
                     printf("\033[0m");  
-                    printf("(%d,%d)",j2,i2);
                 }
                 break;
         }
@@ -599,7 +597,6 @@ void reset_game(){
         best_posi_x[i] = 0;
         best_posi_o[i] = 0;
     }
-    printf("testset1");
     for( int k =0 ; k <= 1; k++ ){
         for( int i = 1; i <= 9; i++ ){
             for( int j = 1; j <= 8; j++ ){
@@ -620,9 +617,7 @@ void reset_game(){
                 }
             }
         }
-        printf("testset3");
     }
-    printf("testset4");
     user_continue == 0;
     user_input = false;
     endgame_1 = false;
