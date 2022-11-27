@@ -23,7 +23,7 @@ int mode, mode_in_file = 0;;
 bool move_y, gameover, endgame_1, endgame_2, user_input, wait_user, loopcheck = true ;
 FILE *p;
 // dev mode !!
-bool Debug_mode = false, auto_random = false, auto_run = false;
+bool Debug_mode = true, auto_random = false, auto_run = false;
 int auto_choose_mode = 0;
 // dev mode !!
 struct position_check_1{
@@ -33,7 +33,7 @@ struct position_check_1{
             int route_y[15*2];
             int priority[15];
             int result, branch;
-        }route[25];
+        }route[50];
 }position[10][9][2];
 
 //setup
@@ -584,8 +584,8 @@ int check_condition(int x0, int y0, int posi, int j1, int i1, int j2, int i2, in
                     printf("\033[0m");
                 }
                 //clear previous data(that not use)
-                if(check_loop2 == 8 || (check_loop1 == 4 && check_loop2 == 7))
-                    clear_previous(x0, y0, posi, priority);
+                //if(check_loop2 == 8 || (check_loop1 == 4 && check_loop2 == 7))
+                    //clear_previous(x0, y0, posi, priority);
                 break;
         }
         else if((j2 == position[x0][y0][posi].route[count_route_main].route_x[z] && i2 == position[x0][y0][posi].route[count_route_main].route_y[z] &&
@@ -597,8 +597,8 @@ int check_condition(int x0, int y0, int posi, int j1, int i1, int j2, int i2, in
                     printf("\033[0m");
                 }
                 //clear previous data(that not use)
-                if(check_loop2 == 8 || (check_loop1 == 4 && check_loop2 == 7))
-                    clear_previous(x0, y0, posi, priority);
+                //if(check_loop2 == 8 || (check_loop1 == 4 && check_loop2 == 7))
+                    //clear_previous(x0, y0, posi, priority);
                 break;
         }
 
@@ -634,8 +634,8 @@ void reset_game(){
                 position[i][j][k].y0 = 0;
                 position[i][j][k].conclude = 0;
                 position[i][j][k].best_route = 0;
-                for( int z = 0; z <= 25; z++){
-                    for( int s = 0;s <= 30; s++){
+                for( int z = 0; z < 50; z++){
+                    for( int s = 0; s < 30; s++){
                     position[i][j][k].route[z].route_x[s] = 0;
                     position[i][j][k].route[z].route_y[s] = 0;
                     position[i][j][k].route[z].route_x[s] = 0;
@@ -727,7 +727,5 @@ int main(){
     }while(user_continue !=2);
         fprintf(p,"--------------------------------------------------------------\n");
     fclose(p);
-
-
     return 0;
 }
