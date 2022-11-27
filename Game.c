@@ -610,7 +610,7 @@ void update_score(){
         player2_score ++;
 }
 
-//initiate reset sequence game
+//initiate reset sequence
 void reset_game(){
     //set all array to 0
     endgame_1 = true;
@@ -650,7 +650,7 @@ void reset_game(){
     gameover = false;
 }
 
-//check if user want to continue
+//check if user want to continue or not
 void check_user_continue(){
     if(gameover){
         printf("Continue ?\n");
@@ -689,8 +689,8 @@ int main(){
             logic();
             check_Xposition();
             check_Yposition();  
-            check_result('o');
             check_result('x');
+            check_result('o');
             check_round(); 
         }
         update_score();
