@@ -23,7 +23,7 @@ int mode, mode_in_file = 0;;
 bool move_y, gameover, endgame_1, endgame_2, user_input, wait_user, loopcheck = true ;
 FILE *p;
 // dev mode !!
-bool Debug_mode = true, auto_random = false, auto_run = false;
+bool Debug_mode = false, auto_random = false, auto_run = false;
 int auto_choose_mode = 0;
 // dev mode !!
 struct position_check_1{
