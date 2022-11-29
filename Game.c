@@ -96,9 +96,19 @@ void check_player(){
 
 //player selece mode
 void choose_mode(){
+        
+                                                                                                               
     system("cls");
-    printf("Choose mode\n");
-    printf("1. easy (5x4) 2. normal (7x6) 3. Hard (9x8)");
+    printf(" _________  ________  ________         _____ ______   ________  ___          ___  ___  ________  ________                                         \n");
+    printf("|\\___   ___\\   __  \\|\\   __  \\        |\\   _ \\  _   \\|\\   __  \\|\\  \\        |\\  \\|\\  \\|\\   __  \\|\\   ___ \\                     \n");
+    printf("\\|___\\  \\_\\ \\  \\|\\  \\ \\  \\|\\  \\       \\ \\  \\\\\\__\\ \\  \\ \\  \\|\\  \\ \\  \\       \\ \\  \\\\\\  \\ \\  \\|\\  \\ \\  \\_|\\ \\   \n");
+    printf("    \\ \\  \\ \\ \\  \\\\\\  \\ \\   _  _\\       \\ \\  \\\\|__| \\  \\ \\   __  \\ \\  \\       \\ \\   __  \\ \\  \\\\\\  \\ \\  \\ \\\\ \\                \n");
+    printf("     \\ \\  \\ \\ \\  \\\\\\  \\ \\\\  \\  \\|       \\ \\  \\    \\ \\  \\ \\  \\ \\  \\ \\  \\       \\ \\  \\ \\  \\ \\  \\\\\\  \\ \\  \\_\\\\ \\         \n");
+    printf("      \\ \\__\\ \\ \\_______\\ \\__\\\\ _\\        \\ \\__\\    \\ \\__\\ \\__\\ \\__\\ \\__\\       \\ \\__\\ \\__\\ \\_______\\ \\_______\\           \n");
+    printf("       \\|__|  \\|_______|\\|__|\\|__|        \\|__|     \\|__|\\|__|\\|__|\\|__|        \\|__|\\|__|\\|_______|\\|_______|                           \n");
+    printf("-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-\n\n");
+    printf("Select mode\n");
+    printf("1. easy (5x4) \n2. normal (7x6) \n3. Hard (9x8)\n");
     //check which mode player choose
     if( mode == 1 || auto_choose_mode == 1){
         BoxSlot = 5;
@@ -197,6 +207,7 @@ int set_color(int x1, int ytemp, int i, int j){
     }
     return result;
 }
+
 //random input(testing mode);
 void random(){
     int lower = 4, upper = 6, num;
