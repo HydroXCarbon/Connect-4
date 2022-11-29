@@ -595,8 +595,8 @@ int check_condition(int x0, int y0, int posi, int j1, int i1, int j2, int i2, in
                     printf("\033[0m");
                 }
                 //clear previous data(that not use)
-                //if(check_loop2 == 8 || (check_loop1 == 4 && check_loop2 == 7))
-                    //clear_previous(x0, y0, posi, priority);
+                if(check_loop2 == 8 || (check_loop1 == 4 && check_loop2 == 7))
+                    clear_previous(x0, y0, posi, priority);
                 break;
         }
         else if((j2 == position[x0][y0][posi].route[count_route_main].route_x[z] && i2 == position[x0][y0][posi].route[count_route_main].route_y[z] &&
@@ -608,8 +608,8 @@ int check_condition(int x0, int y0, int posi, int j1, int i1, int j2, int i2, in
                     printf("\033[0m");
                 }
                 //clear previous data(that not use)
-                //if(check_loop2 == 8 || (check_loop1 == 4 && check_loop2 == 7))
-                    //clear_previous(x0, y0, posi, priority);
+                if(check_loop2 == 8 || (check_loop1 == 4 && check_loop2 == 7))                   
+                    clear_previous(x0, y0, posi, priority);
                 break;
         }
 
