@@ -1,2 +1,1 @@
-# Welcome and have fun
-My First game !!
+# การสร้างเกม Unshrinkable ด้วย c
